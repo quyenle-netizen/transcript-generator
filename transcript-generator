@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>JSON to Table</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    textarea { width: 100%; height: 200px; }
+    button { margin: 10px 0; padding: 10px 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      vertical-align: top;
+    }
+    th { background: #f5f5f5; }
+  </style>
+</head>
+<body>
+
+<h2>JSON → Table Converter</h2>
+
+<textarea id="input"></textarea><br>
+<button onclick="convert()">Convert</button>
+
+<table id="output">
+  <thead>
+    <tr>
+      <th>STT</th>
+      <th>Question</th>
+      <th>Speaker</th>
+      <th>Text</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+<script>
+function convert() {
+  let raw = document.getElementById("input").value;
+
+  try {
+    let data = JSON.parse(raw);
+    let tbody = document.querySelector("#output tbody");
+    tbody.innerHTML = "";
+
+    data.forEach(item => {
+      let stt = item.questionIndex;
+      let question = item.question;
+      let utterances = item.utterances;
+
+      // Nếu chỉ có 1 speaker → gộp
+      if (utterances.length === 1) {
+        let row = `
+          <tr>
+            <td>${stt}</td>
+            <td>${question}</td>
+            <td>${utterances[0].speaker}</td>
+            <td>${utterances[0].text}</td>
+          </tr>
+        `;
+        tbody.innerHTML += row;
+      } else {
+        // nhiều speaker → mỗi dòng 1 utterance
+        utterances.forEach(u => {
+          let row = `
+            <tr>
+              <td>${stt}</td>
+              <td>${question}</td>
+              <td>${u.speaker}</td>
+              <td>${u.text}</td>
+            </tr>
+          `;
+          tbody.innerHTML += row;
+        });
+      }
+    });
+
+  } catch (e) {
+    alert("JSON không hợp lệ!");
+    console.error(e);
+  }
+}
+</script>
+
+</body>
+</html>
